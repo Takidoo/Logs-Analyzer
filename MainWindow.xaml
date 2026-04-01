@@ -1,0 +1,560 @@
+<Window x:Class="LogAnalyzer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Log Analyzer" Height="760" Width="1300" MinHeight="560" MinWidth="900"
+        Background="#0D1117" FontFamily="Segoe UI"
+        WindowStyle="None" ResizeMode="CanResize">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="52"
+                      ResizeBorderThickness="6"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+
+        <!-- ── Flat thin scrollbar ──────────────────────── -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="MinWidth" Value="6"/>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height" Value="6"/>
+                    <Setter Property="MinHeight" Value="6"/>
+                    <Setter Property="Width" Value="Auto"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ── Action button ───────────────────────────── -->
+        <Style x:Key="FlatBtn" TargetType="Button">
+            <Setter Property="Foreground" Value="#C9D1D9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1C2128"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#21262D"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="#30363D"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Primary CTA button -->
+        <Style x:Key="PrimaryBtn" TargetType="Button" BasedOn="{StaticResource FlatBtn}">
+            <Setter Property="Background" Value="#1F6FEB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#388BFD"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1158C7"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── Level pill (CheckBox as toggle) ─────────── -->
+        <Style x:Key="LevelPill" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,3,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="Pill"
+                                Background="#161B22"
+                                BorderBrush="#30363D"
+                                BorderThickness="1"
+                                Padding="10,5">
+                            <ContentPresenter x:Name="Cp" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="False">
+                                <Setter TargetName="Cp"   Property="Opacity"      Value="0.22"/>
+                                <Setter TargetName="Pill" Property="BorderBrush"  Value="#21262D"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked"   Value="True"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Pill" Property="Background" Value="#1C2128"/>
+                            </MultiTrigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked"   Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Cp"   Property="Opacity" Value="0.5"/>
+                                <Setter TargetName="Pill" Property="Background" Value="#0D1117"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── DataGrid column header ───────────────────── -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background"   Value="#0D1117"/>
+            <Setter Property="Foreground"   Value="#484F58"/>
+            <Setter Property="FontSize"     Value="10"/>
+            <Setter Property="FontWeight"   Value="Bold"/>
+            <Setter Property="Height"       Value="30"/>
+            <Setter Property="BorderBrush"  Value="#21262D"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding"      Value="12,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ── DataGrid cell ────────────────────────────── -->
+        <Style TargetType="DataGridCell">
+            <Setter Property="BorderThickness"  Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="Transparent" Padding="12,0">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>
+            <RowDefinition Height="38"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="96"/>
+            <RowDefinition Height="24"/>
+        </Grid.RowDefinitions>
+
+        <!-- ════════════════════ HEADER (drag zone: CaptionHeight = 52) ════════════════════ -->
+        <Border Grid.Row="0"
+                Background="#161B22"
+                BorderBrush="#21262D"
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Brand -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="16,0,20,0">
+                    <Border Width="26" Height="26" Background="#1F6FEB" Margin="0,0,10,0">
+                        <TextBlock Text="▤" Foreground="White" FontSize="13"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="LOG ANALYZER"
+                                   Foreground="#E6EDF3" FontSize="11" FontWeight="Bold"/>
+                        <TextBlock x:Name="FileNameText"
+                                   Text="no file loaded"
+                                   Foreground="#484F58" FontSize="10" FontStyle="Italic"
+                                   MaxWidth="200" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Search -->
+                <Border Grid.Column="1"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                        Background="#0D1117"
+                        BorderBrush="#30363D"
+                        BorderThickness="1"
+                        Margin="0,9,0,9">
+                    <Grid>
+                        <TextBlock Text="Search logs…"
+                                   Foreground="#30363D" FontSize="12"
+                                   IsHitTestVisible="False"
+                                   Padding="34,0,10,0" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Text, ElementName=SearchBox}" Value="">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <!-- Search icon -->
+                        <TextBlock Text="⌕" Foreground="#484F58" FontSize="16"
+                                   IsHitTestVisible="False"
+                                   Padding="8,0,0,2" VerticalAlignment="Center"/>
+                        <TextBox x:Name="SearchBox"
+                                 shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                                 Background="Transparent" Foreground="#C9D1D9"
+                                 BorderThickness="0" Padding="34,0,10,0"
+                                 FontSize="12" VerticalContentAlignment="Center"
+                                 TextChanged="SearchBox_TextChanged"
+                                 CaretBrush="#58A6FF"/>
+                    </Grid>
+                </Border>
+
+                <!-- Actions — flush, full height -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Stretch">
+                    <Border Width="1" Background="#21262D"/>
+                    <Button x:Name="OpenButton"   Content="Open File"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            Style="{StaticResource PrimaryBtn}"
+                            Click="OpenFile_Click"
+                            VerticalAlignment="Stretch"/>
+                    <Border Width="1" Background="#21262D"/>
+                    <Button x:Name="ExportButton" Content="Export CSV"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            Style="{StaticResource FlatBtn}"
+                            Background="Transparent"
+                            IsEnabled="False"
+                            Click="Export_Click"
+                            VerticalAlignment="Stretch"/>
+                    <Border Width="1" Background="#21262D"/>
+                    <Button x:Name="ClearButton"  Content="Clear"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            Style="{StaticResource FlatBtn}"
+                            Background="Transparent"
+                            IsEnabled="False"
+                            Click="Clear_Click"
+                            VerticalAlignment="Stretch"/>
+                    <Border Width="1" Background="#21262D"/>
+                    <Button Content="✕"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True"
+                            Style="{StaticResource FlatBtn}"
+                            Background="Transparent"
+                            Foreground="#8B949E"
+                            Width="48"
+                            Click="Close_Click"
+                            VerticalAlignment="Stretch">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#DA3633"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#A40E26"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ════════════════════ FILTER BAR ════════════════════ -->
+        <Border Grid.Row="1"
+                Background="#0D1117"
+                BorderBrush="#21262D"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="14,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Level filter pills -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="FILTERS" Foreground="#30363D"
+                               FontSize="9" FontWeight="Bold"
+                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                    <CheckBox x:Name="ErrorCheck" IsChecked="True"
+                              Style="{StaticResource LevelPill}"
+                              Checked="FilterCheckBox_Changed" Unchecked="FilterCheckBox_Changed">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="5" Height="5" Fill="#FF7B72"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="ERROR" Foreground="#FF7B72"
+                                       FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="ErrorCountText" Text=""
+                                       Foreground="#FF7B72" FontSize="10" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </CheckBox>
+
+                    <CheckBox x:Name="WarnCheck" IsChecked="True"
+                              Style="{StaticResource LevelPill}"
+                              Checked="FilterCheckBox_Changed" Unchecked="FilterCheckBox_Changed">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="5" Height="5" Fill="#E3B341"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="WARN" Foreground="#E3B341"
+                                       FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="WarnCountText" Text=""
+                                       Foreground="#E3B341" FontSize="10" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </CheckBox>
+
+                    <CheckBox x:Name="InfoCheck" IsChecked="True"
+                              Style="{StaticResource LevelPill}"
+                              Checked="FilterCheckBox_Changed" Unchecked="FilterCheckBox_Changed">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="5" Height="5" Fill="#79C0FF"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="INFO" Foreground="#79C0FF"
+                                       FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="InfoCountText" Text=""
+                                       Foreground="#79C0FF" FontSize="10" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </CheckBox>
+
+                    <CheckBox x:Name="DebugCheck" IsChecked="True"
+                              Style="{StaticResource LevelPill}"
+                              Checked="FilterCheckBox_Changed" Unchecked="FilterCheckBox_Changed">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="5" Height="5" Fill="#8B949E"
+                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
+                            <TextBlock Text="DEBUG" Foreground="#8B949E"
+                                       FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </CheckBox>
+                </StackPanel>
+
+                <!-- Total count -->
+                <TextBlock Grid.Column="2" x:Name="TotalCountText"
+                           Text="—"
+                           Foreground="#30363D" FontSize="11"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- ════════════════════ DATA GRID ════════════════════ -->
+        <DataGrid x:Name="LogGrid"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  Background="#0D1117"
+                  Foreground="#8B949E"
+                  BorderThickness="0"
+                  GridLinesVisibility="Horizontal"
+                  HorizontalGridLinesBrush="#161B22"
+                  RowBackground="#0D1117"
+                  AlternatingRowBackground="#0A0E14"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  SelectionMode="Single"
+                  SelectionChanged="LogGrid_SelectionChanged"
+                  HeadersVisibility="Column"
+                  RowHeight="28"
+                  EnableRowVirtualization="True"
+                  VirtualizingPanel.IsVirtualizing="True"
+                  FontSize="12"
+                  FontFamily="Consolas">
+
+            <DataGrid.Columns>
+
+                <!-- # -->
+                <DataGridTextColumn Header="#" Binding="{Binding LineNumber}" Width="52" IsReadOnly="True">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground"     Value="#30363D"/>
+                            <Setter Property="FontSize"       Value="11"/>
+                            <Setter Property="TextAlignment"  Value="Right"/>
+                            <Setter Property="Padding"        Value="0,0,6,0"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- TIMESTAMP -->
+                <DataGridTextColumn Header="TIMESTAMP" Binding="{Binding Timestamp}" Width="186">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#484F58"/>
+                            <Setter Property="FontSize"   Value="11"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- LEVEL badge -->
+                <DataGridTemplateColumn Header="LEVEL" Width="82">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Margin="6,4" Padding="7,2" HorizontalAlignment="Left">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#1C2128"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Level}" Value="ERROR">
+                                                <Setter Property="Background" Value="#2D0C09"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Level}" Value="WARN">
+                                                <Setter Property="Background" Value="#251A07"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Level}" Value="INFO">
+                                                <Setter Property="Background" Value="#061726"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding Level}"
+                                           FontFamily="Segoe UI" FontSize="10" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="#484F58"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Level}" Value="ERROR">
+                                                    <Setter Property="Foreground" Value="#FF7B72"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="WARN">
+                                                    <Setter Property="Foreground" Value="#E3B341"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="INFO">
+                                                    <Setter Property="Foreground" Value="#79C0FF"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="DEBUG">
+                                                    <Setter Property="Foreground" Value="#8B949E"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Level}" Value="TRACE">
+                                                    <Setter Property="Foreground" Value="#484F58"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- SOURCE -->
+                <DataGridTextColumn Header="SOURCE" Binding="{Binding Source}" Width="135">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#388BFD"/>
+                            <Setter Property="FontSize"   Value="11"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- MESSAGE -->
+                <DataGridTextColumn Header="MESSAGE" Binding="{Binding Message}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#C9D1D9"/>
+                            <Setter Property="FontSize"   Value="12"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+            </DataGrid.Columns>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="Background"      Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="Foreground"      Value="#8B949E"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Level}" Value="ERROR">
+                            <Setter Property="Background" Value="#0E0807"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Level}" Value="WARN">
+                            <Setter Property="Background" Value="#0C0B06"/>
+                        </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#192130"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#0C2555"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+
+        </DataGrid>
+
+        <!-- ════════════════════ SPLITTER ════════════════════ -->
+        <GridSplitter Grid.Row="3" Height="4" HorizontalAlignment="Stretch"
+                      Background="#21262D" Cursor="SizeNS" VerticalAlignment="Stretch"/>
+
+        <!-- ════════════════════ DETAIL PANEL ════════════════════ -->
+        <Border Grid.Row="4" Background="#0A0D12"
+                BorderBrush="#21262D" BorderThickness="0,1,0,0">
+            <Grid Margin="16,8">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Text="RAW LINE"
+                           Foreground="#21262D" FontSize="9" FontWeight="Bold"
+                           FontFamily="Segoe UI" Margin="0,0,0,5"/>
+                <TextBox Grid.Row="1" x:Name="DetailBox"
+                         Background="Transparent" Foreground="#484F58"
+                         BorderThickness="0" IsReadOnly="True"
+                         TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         FontFamily="Consolas" FontSize="12"
+                         Padding="0" CaretBrush="Transparent"
+                         SelectionBrush="#1F6FEB"/>
+            </Grid>
+        </Border>
+
+        <!-- ════════════════════ STATUS BAR ════════════════════ -->
+        <Border Grid.Row="5" Background="#161B22"
+                BorderBrush="#21262D" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0">
+                <Ellipse Width="5" Height="5" Fill="#3FB950"
+                         VerticalAlignment="Center" Margin="0,0,7,0"/>
+                <TextBlock x:Name="StatusText"
+                           Text="Ready — open a log file to begin"
+                           Foreground="#484F58" FontSize="10"/>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>

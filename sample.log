@@ -1,0 +1,27 @@
+=== Log Analyzer — fichier d'essai (ne pas parser comme une ligne de log) ===
+
+2026-04-01 08:00:00.001 [INFO] [Startup] Application LogAnalyser démarrée — build 1.0
+2026-04-01 08:00:00.102 [DEBUG] [Config] Chargement appsettings.json depuis C:\App\config
+2026-04-01T08:00:01,250 [WARN] [Network] Latence élevée détectée vers api.example.com (420ms)
+2026-04-01 08:00:02.500 INFO  Database: Connexion pool initialisé (min=5, max=50)
+2026-04-01 08:00:03.120 INFO  AuthService: Jeton JWT rafraîchi pour l'utilisateur demo@example.com
+[2026-04-01 08:00:05] INFO - Requête GET /api/health — 200 OK (12 ms)
+[2026-04-01 08:00:06] DEBUG - Cache hit pour la clé session:abc123
+[2026-04-01 08:00:07] WARN - File d'attente JobQueue dépasse 80% de capacité (812/1000)
+08:00:10.001 INFO Traitement batch #42 démarré (1500 enregistrements)
+08:00:11.456 TRACE Entrée de trace détaillée — correlationId=7f3a9c2e
+08:00:12.789 DEBUG Validation du schéma XML — aucune erreur
+WARNING: Dépréciation — l'endpoint /v1/legacy sera retiré le 2026-06-01
+ERROR: Échec de connexion TCP vers 10.0.0.99:5432 — timeout après 30s
+INFO - Service de notification en mode silencieux jusqu'à 09:00
+DEBUG: Dump mémoire processus — working set 128 Mo
+TRACE: Boucle poll #1000 — aucun nouvel événement
+FATAL: Processus critique PaymentWorker s'est arrêté de façon inattendue
+CRITICAL: Espace disque < 5% sur le volume D:
+ERROR: NullReferenceException dans OrderProcessor.HandleSubmit — voir ticket #4421
+2026-04-01 08:05:00.000 [INFO] [Scheduler] Tâche cron nightly_backup planifiée
+2026-04-01 08:05:01.333 [ERROR] [PaymentGateway] Code refus 51 — carte expirée (transaction tx_9k2m)
+2026-04-01 08:05:02.777 [WARN] [RateLimit] Client 203.0.113.45 proche de la limite (95 req/min)
+Ligne sans horodatage ni niveau — message brut pour tester le fallback (colonne Message pleine ligne)
+  continuation indentée parfois présente dans les vrais logs
+2026-04-01 08:10:00.000 [INFO] [Export] Export CSV terminé — 12 450 lignes écrites
