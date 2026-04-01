@@ -11,7 +11,7 @@
 ## ✨ Aperçu
 
 <p align="center">
-  <img src="LogAnalyser/thumbnail/exemple.png" alt="Capture d’écran — Log Analyzer en mode sombre avec sample.log" width="920">
+  <img src="https://raw.githubusercontent.com/Takidoo/Logs-Analyzer/refs/heads/master/thumbnail/exemple.png" alt="Capture d’écran — Log Analyzer en mode sombre avec sample.log" width="920">
   <br>
   <sub><i>Exemple avec <code>sample.log</code> — filtres ERROR / WARN / INFO / DEBUG, grille et zone « Raw line ».</i></sub>
 </p>
