@@ -17,3 +17,4 @@ C:\Users\takid\Desktop\Log\LogAnalyser\obj\Debug\net9.0-windows\refint\LogAnalys
 C:\Users\takid\Desktop\Log\LogAnalyser\obj\Debug\net9.0-windows\LogAnalyser.pdb
 C:\Users\takid\Desktop\Log\LogAnalyser\obj\Debug\net9.0-windows\LogAnalyser.genruntimeconfig.cache
 C:\Users\takid\Desktop\Log\LogAnalyser\obj\Debug\net9.0-windows\ref\LogAnalyser.dll
+C:\Users\takid\Desktop\Log\LogAnalyser\obj\Debug\net9.0-windows\LogAnalyser.sourcelink.json
